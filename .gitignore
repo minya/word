@@ -1,0 +1,45 @@
+# Ignore object files
+*.o
+*.obj
+
+# Ignore compiled files
+*.exe
+*.out
+*.app
+*.so
+*.dll
+
+# Ignore build directories
+/build/
+/Debug/
+/Release/
+
+# Ignore dmake temporary files
+.DM_*
+
+# .gitignore for Visual Studio Code
+
+.vscode/
+*.code-workspace
+
+# Ignore settings containing user-specific data
+.vscode/settings.json
+
+# Ignore tasks file
+.vscode/tasks.json
+
+# Ignore launch file
+.vscode/launch.json
+
+# Ignore extensions file
+.vscode/ext
+
+
+.cache/
+
+.idea/
+cmake-build-debug/
+
+
+
+dict.opcorpora.txt

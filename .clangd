@@ -1,0 +1,2 @@
+CompileFlags: 
+  Add: [-Wc++11-extension, --std=c++1z, -Wall, -Wextra, -Werror]
