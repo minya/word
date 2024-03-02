@@ -1,55 +1,32 @@
 #include "board.h"
 #include "trie.h"
+#include "line_reader.h"
 
 #include <string_view>
 #include <iostream>
 #include <vector>
-#include <filesystem>
 
 using namespace std;
 
-template <typename TStream>
-class wstring_line_reader {
-public:
-    virtual wstring readLine(TStream& in) = 0;
-    virtual ~wstring_line_reader() = default;
-};
-
-class wistream_line_reader : public wstring_line_reader<wistream> {
-public:
-    wstring readLine(wistream& in) override {
-        wstring line;
-        getline(in, line);
-        return line;
-    }
-};
-
-class istream_line_reader : public wstring_line_reader<istream> {
-public:
-    wstring readLine(istream& in) override {
-        string line;
-        getline(in, line);
-        return std::filesystem::path(line).wstring();
-    }
-};
 
 
 template <typename TStream, typename TLineReader>
 Board readBoard(TStream& in_stream, TLineReader reader) {
     Board board(5, vector<BoardCell>(5));
     for (int i = 0; i < 5; i++) {
-        wstring line = reader.readLine(in_stream);
+        wstring line = *reader.readLine(in_stream);
+        wcout << line << endl;
         int col = 0;
 
         wstring_view sv{line};
-        while (!sv.empty()) {
+        while (!sv.empty() && col < 5) {
             auto space_pos = sv.find(L' ');
             space_pos = space_pos == string_view::npos ? sv.size() : space_pos + 1;
             wstring_view cell_str = sv.substr(0, space_pos);
             sv.remove_prefix(space_pos);
             auto& cell = board[i][col];
             col++;
-            cell.letter = towupper(cell_str[0]);
+            cell.letter = toupper(cell_str[0], locale("ru_RU.UTF-8"));
 
             if (cell_str.size() <= 2) {
                 continue;

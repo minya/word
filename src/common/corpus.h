@@ -1,29 +1,23 @@
-#include "dictionary.h"
-#include <memory>
+#pragma once
+#include <vector>
+#include <string>
 #include <iostream>
-#include <string_view>
 
-using std::wistream;
-using std::vector;
 using std::wstring;
 using std::wstring_view;
+using std::vector;
 
-
-bool isSane(wstring_view word) {
-    if (word.size() < 2) {
-        return false;
-    }
-    return std::all_of(word.begin(), word.end(), [](wchar_t c) {
-        return (c >= L'А' && c <= L'Я') || c == L'Ё';
-    });
-}
-
-Dictionary::Dictionary(wistream& in) {
+class Corpus {
+public:
+  template <typename TLineReader, typename TStream>
+  explicit Corpus(TLineReader in, TStream& is) {
     enum class ParseState { LookForNumber, Word };
-    vector<wstring> dictionary;
     auto parse_state = ParseState::LookForNumber;
-    wstring line;
-    while (getline(in, line)) {
+    vector<wstring> dictionary;
+    for (auto lineMaybe = in.readLine(is);
+            lineMaybe;
+            lineMaybe = in.readLine(is)) {
+        const auto& line = *lineMaybe;
         if (parse_state == ParseState::Word) {
             auto word_end = line.find_first_of('\t');
             if (word_end == wstring::npos) {
@@ -57,8 +51,10 @@ Dictionary::Dictionary(wistream& in) {
         }
     }
     this->_words = std::move(dictionary);
+  }
+  const std::vector<std::wstring>& words() const;
+private:
+  bool isSane(std::wstring_view word) const;
+  std::vector<std::wstring> _words;
 };
 
-const vector<wstring>& Dictionary::words() const {
-    return this->_words;
-};

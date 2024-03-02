@@ -1,13 +1,13 @@
 #pragma once
 
-#include <sstream>
 #include <stdexcept>
-#include <ostream>
+#include <iostream>
 #include <map>
 #include <unordered_map>
 #include <set>
 #include <string>
 #include <vector>
+#include <sstream>
 
 namespace TestRunnerPrivate {
   template <
@@ -140,6 +140,9 @@ private:
   Assert(x, __assert_private_os.str());       \
 }
 
+#define CAT(A, B) A##B
+#define WCAT(A) CAT(L, A)
+
 #define RUN_TEST(tr, func) \
-  tr.RunTest(func, #func)
+  tr.RunTest(func, WCAT(#func))
 

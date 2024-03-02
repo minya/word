@@ -1,9 +1,11 @@
 #include "tests.h"
-#include "board.h"
-#include "dictionary.h"
 #include "test_runner.h"
-#include "find.h"
+#include "common/board.h"
+#include "common/corpus.h"
+#include "common/find.h"
+#include "common/line_reader.h"
 
+#include <optional>
 #include <sstream>
 #include <string>
 
@@ -11,10 +13,23 @@ using std::wstringstream;
 using std::endl;
 using std::wstring;
 
+void testLineReader() {
+    wstringstream ss(L"line1\nline2\nline3");
+    wistream_line_reader line_reader;
+    ASSERT_EQUAL(L"line1", *line_reader.readLine(ss))
+    ASSERT_EQUAL(L"line2", *line_reader.readLine(ss))
+    ASSERT_EQUAL(L"line3", *line_reader.readLine(ss))
+    auto eof = line_reader.readLine(ss);
+    if (eof) {
+        ASSERT(false)
+    }
+}
+
 void testParseEmptyDictionary() {
     wstringstream ss(L"");
-    Dictionary dictionary(ss);
-    ASSERT_EQUAL(0u, dictionary.words().size())
+    wistream_line_reader line_reader;
+    Corpus corpus(line_reader, ss);
+    ASSERT_EQUAL(0u, corpus.words().size())
 }
 
 void testParseSimpleDictionary() {
@@ -49,10 +64,12 @@ void testParseSimpleDictionary() {
 
     ss.seekp(0);
 
-    Dictionary dictionary(ss);
-    ASSERT_EQUAL(2u, dictionary.words().size())
-    ASSERT_EQUAL(L"ЁЖ", dictionary.words()[0])
-    ASSERT_EQUAL(L"ХЁЖ", dictionary.words()[1])
+    wistream_line_reader line_reader;
+    Corpus corpus(line_reader, ss);
+    const auto& words = corpus.words();
+    ASSERT_EQUAL(2u, words.size())
+    ASSERT_EQUAL(L"ЁЖ", words[0])
+    ASSERT_EQUAL(L"ХЁЖ", words[1])
 }
 
 Board makeTestBoard() {
@@ -66,7 +83,7 @@ Board makeTestBoard() {
     return readBoard(ss);
 }
 
-Dictionary makeTestDictionary() {
+vector<wstring> makeTestDictionary() {
     wstringstream ss;
     ss << L"1" << endl;
     ss << L"ЁЖ	NOUN,anim,masc sing,nomn" << endl;
@@ -83,7 +100,8 @@ Dictionary makeTestDictionary() {
     ss << L"1" << endl;
     ss << L"ДИАДА	NOUN,anim,masc sing,nomn" << endl;
     ss.seekp(0);
-    return Dictionary(ss);
+    wistream_line_reader line_reader;
+    return Corpus(line_reader, ss).words();
 }
 
 void testReadBoard() {
@@ -95,8 +113,8 @@ void testReadBoard() {
 
 void testFindWordsOnBoard() {
     auto board = makeTestBoard();
-    auto dictionary = makeTestDictionary();
-    WordsTrie trie{dictionary.words()};
+    auto words = makeTestDictionary();
+    WordsTrie trie{words};
     auto found = findWords(board, trie);
 
     ASSERT_EQUAL(4u, found.size())
@@ -128,9 +146,10 @@ void testFindWordsOnBoard() {
     // ASSERT_EQUAL(50, found[3].cost)
 }
 
-void runTests() {
-    testParseEmptyDictionary();
-    testParseSimpleDictionary();
-    testReadBoard();
-    testFindWordsOnBoard();
+void runTests(TestRunner& tr) {
+    RUN_TEST(tr, testLineReader);
+    RUN_TEST(tr, testParseEmptyDictionary);
+    RUN_TEST(tr, testParseSimpleDictionary);
+    RUN_TEST(tr, testReadBoard);
+    RUN_TEST(tr, testFindWordsOnBoard);
 }

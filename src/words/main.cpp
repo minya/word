@@ -1,9 +1,9 @@
-#include "board.h"
-#include "find.h"
 #include "args.h"
-#include "tests.h"
-#include "dictionary.h"
-#include "trie.h"
+#include "common/board.h"
+#include "common/find.h"
+#include "common/trie.h"
+#include "common/corpus.h"
+#include "common/line_reader.h"
 
 #include <iostream>
 #include <fstream>
@@ -36,17 +36,12 @@ int main(int argc, char** argv) {
 
     auto args = parseArgs(argc, argv);
 
-    if (args.tests_run) {
-      cout << "Running tests" << endl;
-      runTests();
-      cout << "Tests complete" << endl;
-      return 0;
-    }
 
     wifstream ifs(args.filename);
     ifs.imbue(std::locale("ru_RU.UTF-8"));
     cout << "Reading dictionary from " << args.filename << "..." << endl;
-    Dictionary dictionary(ifs);
+    wistream_line_reader reader;
+    Corpus dictionary(reader, ifs);
     const auto& words = dictionary.words();
     WordsTrie trie(words);
     cout << "Dictionary read complete. Size is " << words.size() << "." << endl;

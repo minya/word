@@ -43,3 +43,6 @@ cmake-build-debug/
 
 
 dict.opcorpora.txt
+
+.DS_Store
+compile_commands.json
