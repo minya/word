@@ -6,16 +6,14 @@
 #include <iostream>
 #include <vector>
 
+
 using namespace std;
-
-
 
 template <typename TStream, typename TLineReader>
 Board readBoard(TStream& in_stream, TLineReader reader) {
     Board board(5, vector<BoardCell>(5));
     for (int i = 0; i < 5; i++) {
         wstring line = *reader.readLine(in_stream);
-        wcout << line << endl;
         int col = 0;
 
         wstring_view sv{line};

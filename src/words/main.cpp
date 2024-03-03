@@ -2,7 +2,6 @@
 #include "common/board.h"
 #include "common/find.h"
 #include "common/trie.h"
-#include "common/corpus.h"
 #include "common/line_reader.h"
 
 #include <iostream>
@@ -41,8 +40,12 @@ int main(int argc, char** argv) {
     ifs.imbue(std::locale("ru_RU.UTF-8"));
     cout << "Reading dictionary from " << args.filename << "..." << endl;
     wistream_line_reader reader;
-    Corpus dictionary(reader, ifs);
-    const auto& words = dictionary.words();
+    vector<wstring> words;
+
+    for (auto lineMaybe = reader.readLine(ifs); lineMaybe.has_value(); lineMaybe = reader.readLine(ifs)) {
+        words.push_back(*lineMaybe);
+    }
+
     WordsTrie trie(words);
     cout << "Dictionary read complete. Size is " << words.size() << "." << endl;
 

@@ -1,13 +1,14 @@
 #include "tests.h"
 #include "test_runner.h"
 #include "common/board.h"
-#include "common/corpus.h"
+#include "common/dict_converter.h"
 #include "common/find.h"
 #include "common/line_reader.h"
 
 #include <optional>
 #include <sstream>
 #include <string>
+#include <vector>
 
 using std::wstringstream;
 using std::endl;
@@ -27,9 +28,12 @@ void testLineReader() {
 
 void testParseEmptyDictionary() {
     wstringstream ss(L"");
+    wstringstream os;
     wistream_line_reader line_reader;
-    Corpus corpus(line_reader, ss);
-    ASSERT_EQUAL(0u, corpus.words().size())
+    DictConverter converter;
+    converter.convert(line_reader, ss, os);
+    auto lineMaybe = line_reader.readLine(os);
+    ASSERT(!lineMaybe.has_value())
 }
 
 void testParseSimpleDictionary() {
@@ -65,11 +69,16 @@ void testParseSimpleDictionary() {
     ss.seekp(0);
 
     wistream_line_reader line_reader;
-    Corpus corpus(line_reader, ss);
-    const auto& words = corpus.words();
-    ASSERT_EQUAL(2u, words.size())
-    ASSERT_EQUAL(L"ЁЖ", words[0])
-    ASSERT_EQUAL(L"ХЁЖ", words[1])
+    DictConverter converter;
+    wstringstream os;
+    converter.convert(line_reader, ss, os);
+    os.seekp(0);
+    auto line = line_reader.readLine(os);
+    ASSERT_EQUAL(L"ЁЖ", *line)
+    line = line_reader.readLine(os);
+    ASSERT_EQUAL(L"ХЁЖ", *line)
+    line = line_reader.readLine(os);
+    ASSERT(!line.has_value())
 }
 
 Board makeTestBoard() {
@@ -84,24 +93,15 @@ Board makeTestBoard() {
 }
 
 vector<wstring> makeTestDictionary() {
-    wstringstream ss;
-    ss << L"1" << endl;
-    ss << L"ЁЖ	NOUN,anim,masc sing,nomn" << endl;
-    ss << L"2" << endl;
-    ss << L"ЕГДАЕ	NOUN,inan,masc sing,nomn" << endl;
-    ss << L"2" << endl;
-    ss << L"ЕГДАД	NOUN,inan,masc sing,nomn" << endl;
-    ss << L"1" << endl;
-    ss << L"КРАКОВЯК	NOUN,anim,masc sing,nomn" << endl;
-    ss << L"1" << endl;
-    ss << L"БРАВАДА	NOUN,anim,masc sing,nomn" << endl;
-    ss << L"1" << endl;
-    ss << L"ВДОВА	NOUN,anim,masc sing,nomn" << endl;
-    ss << L"1" << endl;
-    ss << L"ДИАДА	NOUN,anim,masc sing,nomn" << endl;
-    ss.seekp(0);
-    wistream_line_reader line_reader;
-    return Corpus(line_reader, ss).words();
+    vector<wstring> dictionary;
+    dictionary.push_back(L"ЁЖ");
+    dictionary.push_back(L"ЕГДАЕ");
+    dictionary.push_back(L"ЕГДАД");
+    dictionary.push_back(L"КРАКОВЯК");
+    dictionary.push_back(L"БРАВАДА");
+    dictionary.push_back(L"ВДОВА");
+    dictionary.push_back(L"ДИАДА");
+    return dictionary;
 }
 
 void testReadBoard() {
