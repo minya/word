@@ -1,6 +1,7 @@
 #pragma once
 
 #include "board.h"
+#include "common/line_reader.h"
 
 #include <string>
 #include <memory>
@@ -31,6 +32,7 @@ public:
     };
 
     explicit WordsTrie(const std::vector<std::wstring>& words);
+    WordsTrie();
     void insert(const std::wstring& word);
 
     WordsTrie::iterator begin() const;

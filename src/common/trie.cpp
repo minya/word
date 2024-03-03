@@ -20,6 +20,10 @@ WordsTrie::WordsTrie(const vector<wstring>& words) {
     }
 }
 
+WordsTrie::WordsTrie() {
+    _root = make_unique<TrieNode>(' ');
+}
+
 void WordsTrie::insert(const wstring& word) {
     TrieNode* current = _root.get();
     for (auto c: word) {

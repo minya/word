@@ -42,12 +42,16 @@ int main(int argc, char** argv) {
     wistream_line_reader reader;
     vector<wstring> words;
 
-    for (auto lineMaybe = reader.readLine(ifs); lineMaybe.has_value(); lineMaybe = reader.readLine(ifs)) {
-        words.push_back(*lineMaybe);
-    }
 
-    WordsTrie trie(words);
-    cout << "Dictionary read complete. Size is " << words.size() << "." << endl;
+    WordsTrie trie;
+    size_t word_count = 0;
+    for (auto lineMaybe = reader.readLine(ifs);
+            lineMaybe.has_value();
+            lineMaybe = reader.readLine(ifs)) {
+        trie.insert(*lineMaybe);
+        ++word_count;
+    }
+    cout << "Dictionary read complete. Size is " << word_count << "." << endl;
 
     while (true) {
         auto board = readBoard(cin);
